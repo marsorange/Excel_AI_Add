@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>认证调试</title>
+</head>
+<body>
+    <h1>Excel AI 认证调试</h1>
+    
+    <div>
+        <h2>当前认证状态</h2>
+        <p>Token: <span id="token"></span></p>
+        <button onclick="clearToken()">清除Token</button>
+        <button onclick="testLogin()">测试登录</button>
+        <button onclick="testAgent()">测试AI助手</button>
+    </div>
+    
+    <div>
+        <h2>操作结果</h2>
+        <pre id="result"></pre>
+    </div>
+
+    <script>
+        function displayToken() {
+            const token = localStorage.getItem('authToken');
+            document.getElementById('token').textContent = token || '无';
+        }
+        
+        function clearToken() {
+            localStorage.removeItem('authToken');
+            displayToken();
+            document.getElementById('result').textContent = 'Token已清除';
+        }
+        
+        async function testLogin() {
+            try {
+                const response = await fetch('http://localhost:8000/token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'username=test@example.com&password=testpass123'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('authToken', data.access_token);
+                    displayToken();
+                    document.getElementById('result').textContent = '登录成功！\n' + JSON.stringify(data, null, 2);
+                } else {
+                    document.getElementById('result').textContent = '登录失败: ' + response.status;
+                }
+            } catch (error) {
+                document.getElementById('result').textContent = '登录错误: ' + error.message;
+            }
+        }
+        
+        async function testAgent() {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                document.getElementById('result').textContent = '请先登录获取Token';
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:8000/agent/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: '你好',
+                        conversation_id: `conv_${Date.now()}`,
+                    }),
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('result').textContent = 'AI助手响应成功！\n' + JSON.stringify(data, null, 2);
+                } else {
+                    const errorText = await response.text();
+                    document.getElementById('result').textContent = 'AI助手失败: ' + response.status + '\n' + errorText;
+                }
+            } catch (error) {
+                document.getElementById('result').textContent = 'AI助手错误: ' + error.message;
+            }
+        }
+        
+        // 初始化显示
+        displayToken();
+    </script>
+</body>
+</html> 

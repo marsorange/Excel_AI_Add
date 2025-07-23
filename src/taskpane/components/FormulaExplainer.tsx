@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
 import { Button, Textarea, makeStyles, Spinner, Text } from "@fluentui/react-components";
+import { API_ENDPOINTS } from "../../config/api";
 
 const useStyles = makeStyles({
   root: {
@@ -105,7 +106,7 @@ const FormulaExplainer: React.FC<FormulaExplainerProps> = ({ token }) => {
     setError(null);
     setExplanation("");
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/explain-formula", {
+      const response = await fetch(API_ENDPOINTS.EXPLAIN_FORMULA, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

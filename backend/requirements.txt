@@ -1,5 +1,5 @@
 fastapi
-uvicorn
+uvicorn[standard]
 python-dotenv
 httpx
 SQLAlchemy
@@ -7,3 +7,4 @@ passlib[bcrypt]
 python-jose[cryptography]
 alembic
 psycopg2-binary
+pydantic

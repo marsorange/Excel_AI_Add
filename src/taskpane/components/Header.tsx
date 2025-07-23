@@ -45,7 +45,7 @@ const useStyles = makeStyles({
     display: "flex",
     alignItems: "center",
     gap: "8px",
-    margin: "24 0 24 0px",
+    marginRight: "24px"
   },
   email: {
     color: "#888",
@@ -61,7 +61,7 @@ const useStyles = makeStyles({
     fontWeight: 500,
     border: "none",
     borderRadius: "6px",
-    padding: "6px 18px",
+    padding: "6px 18px 6px 18px",
     cursor: "pointer",
     transition: "background 0.2s",
     ":hover": {

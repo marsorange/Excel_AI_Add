@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
 import { makeStyles } from "@fluentui/react-components";
+import { API_ENDPOINTS } from "../../config/api";
 
 const useStyles = makeStyles({
   root: {
@@ -120,7 +121,7 @@ const Auth: React.FC<AuthProps> = ({ onLoginSuccess }) => {
     setLoading(true);
     try {
       if (isRegister) {
-        const res = await fetch("http://localhost:8000/register", {
+        const res = await fetch(API_ENDPOINTS.REGISTER, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
@@ -131,7 +132,7 @@ const Auth: React.FC<AuthProps> = ({ onLoginSuccess }) => {
         }
       }
       // 登录
-      const loginRes = await fetch("http://localhost:8000/token", {
+      const loginRes = await fetch(API_ENDPOINTS.LOGIN, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,

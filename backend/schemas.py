@@ -48,3 +48,22 @@ class DiagnoseErrorResponse(BaseModel):
     error_type: str
     explanation: str
     suggested_fix: str
+
+# Agent 相关模型
+class ExcelOperation(BaseModel):
+    operation_type: str
+    description: str
+    js_code: Optional[str] = None
+    parameters: Optional[dict] = None
+
+class AgentChatRequest(BaseModel):
+    message: str
+    conversation_id: Optional[str] = None
+    context: Optional[dict] = None
+
+class AgentChatResponse(BaseModel):
+    success: bool
+    response: str
+    excel_operations: list[ExcelOperation] = []
+    conversation_id: Optional[str] = None
+    error: Optional[str] = None

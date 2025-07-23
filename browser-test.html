@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel AI 助手 - 浏览器测试</title>
+    <style>
+        body {
+            font-family: "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #1a7f37;
+            margin-bottom: 10px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            background: #1a7f37;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: #176c2c;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .code {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Excel AI 助手</h1>
+            <p>浏览器测试页面</p>
+        </div>
+
+        <div class="info">
+            <strong>📌 提示：</strong><br>
+            • <strong>浏览器测试</strong>: 使用 <code>npm run browser-test</code> (HTTP模式)<br>
+            • <strong>Excel插件</strong>: 使用 <code>npm run dev-server</code> (HTTPS模式)<br>
+            • <strong>后端API</strong>: <code>http://localhost:8000</code>
+        </div>
+
+        <div class="test-section">
+            <h3>🔗 快速访问链接</h3>
+            <a href="http://localhost:3000" class="btn" target="_blank">前端界面 (HTTP)</a>
+            <a href="https://localhost:3000" class="btn btn-secondary" target="_blank">前端界面 (HTTPS)</a>
+            <a href="http://localhost:8000/docs" class="btn" target="_blank">API文档</a>
+            <a href="http://localhost:8000/api/llm-info" class="btn" target="_blank">LLM配置状态</a>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 连接测试</h3>
+            <button class="btn" onclick="testBackendConnection()">测试后端连接</button>
+            <button class="btn" onclick="testLLMConfig()">测试LLM配置</button>
+            <div id="testResult" class="status" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🚀 启动命令</h3>
+            <div class="code">
+                # 浏览器测试模式 (HTTP)<br>
+                npm run browser-test<br><br>
+                
+                # Excel插件模式 (HTTPS)<br>
+                npm run dev-server<br><br>
+                
+                # 后端服务<br>
+                cd backend && uvicorn main:app --reload
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 功能测试清单</h3>
+            <ul>
+                <li>✅ 用户注册和登录</li>
+                <li>✅ 公式生成功能</li>
+                <li>✅ 公式解释功能</li>
+                <li>✅ AI智能助手</li>
+                <li>✅ Excel操作代码生成</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function testBackendConnection() {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = '测试中...';
+            resultDiv.className = 'status';
+
+            try {
+                const response = await fetch('http://localhost:8000/api/llm-info', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    resultDiv.textContent = '✅ 后端连接成功！';
+                    resultDiv.className = 'status success';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.textContent = `❌ 后端连接失败: ${error.message}`;
+                resultDiv.className = 'status error';
+            }
+        }
+
+        async function testLLMConfig() {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = '测试LLM配置...';
+            resultDiv.className = 'status';
+
+            try {
+                const response = await fetch('http://localhost:8000/api/llm-info');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.textContent = `✅ LLM配置正常！使用: ${data.provider} (${data.model})`;
+                    resultDiv.className = 'status success';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.textContent = `❌ LLM配置测试失败: ${error.message}`;
+                resultDiv.className = 'status error';
+            }
+        }
+
+        // 页面加载时自动检测服务状态
+        window.addEventListener('load', () => {
+            setTimeout(testBackendConnection, 1000);
+        });
+    </script>
+</body>
+</html> 

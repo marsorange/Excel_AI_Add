@@ -2,15 +2,16 @@
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="TaskPaneApp">
   <Id>7095d81b-b39f-4271-a977-9328d7dcc148</Id>
   <Version>1.0.0.0</Version>
-  <ProviderName>Contoso</ProviderName>
+  <ProviderName>Excel AI</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="Excel_AI"/>
-  <Description DefaultValue="A template to get started."/>
+  <DisplayName DefaultValue="Excel AI 助手"/>
+  <Description DefaultValue="智能的Excel公式生成和解释工具，支持AI对话和Excel自动化操作"/>
   <IconUrl DefaultValue="https://localhost:3000/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-64.png"/>
   <SupportUrl DefaultValue="https://www.contoso.com/help"/>
   <AppDomains>
-    <AppDomain>https://www.contoso.com</AppDomain>
+    <AppDomain>https://localhost:3000</AppDomain>
+    <AppDomain>https://localhost:8000</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Workbook"/>
@@ -72,13 +73,13 @@
         <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3000/taskpane.html"/>
       </bt:Urls>
       <bt:ShortStrings>
-        <bt:String id="GetStarted.Title" DefaultValue="Get started with your sample add-in!"/>
-        <bt:String id="CommandsGroup.Label" DefaultValue="Commands Group"/>
-        <bt:String id="TaskpaneButton.Label" DefaultValue="Show Task Pane"/>
+        <bt:String id="GetStarted.Title" DefaultValue="开始使用 Excel AI 助手！"/>
+        <bt:String id="CommandsGroup.Label" DefaultValue="Excel AI"/>
+        <bt:String id="TaskpaneButton.Label" DefaultValue="打开 AI 助手"/>
       </bt:ShortStrings>
       <bt:LongStrings>
-        <bt:String id="GetStarted.Description" DefaultValue="Your sample add-in loaded successfully. Go to the HOME tab and click the 'Show Task Pane' button to get started."/>
-        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Click to Show a Taskpane"/>
+        <bt:String id="GetStarted.Description" DefaultValue="Excel AI 助手已成功加载。点击主页选项卡中的打开 AI 助手按钮开始使用智能公式生成功能。"/>
+        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="打开Excel AI助手面板，开始智能公式生成和解释"/>
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
 import { Button, Textarea, makeStyles, Spinner, Text } from "@fluentui/react-components";
+import { API_ENDPOINTS } from "../../config/api";
 
 const useStyles = makeStyles({
   root: {
@@ -118,6 +119,7 @@ const FormulaGenerator: React.FC<FormulaGeneratorProps> = ({ token }) => {
   const [formula, setFormula] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isInserting, setIsInserting] = useState(false);
 
   const handleGenerate = async () => {
     if (!token) {
@@ -128,7 +130,7 @@ const FormulaGenerator: React.FC<FormulaGeneratorProps> = ({ token }) => {
     setError(null);
     setFormula("");
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/generate-formula", {
+      const response = await fetch(API_ENDPOINTS.GENERATE_FORMULA, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -137,6 +139,9 @@ const FormulaGenerator: React.FC<FormulaGeneratorProps> = ({ token }) => {
         body: JSON.stringify({ text: naturalLanguage }),
       });
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('认证失败，请重新登录');
+        }
         const errorData = await response.json();
         throw new Error(errorData.detail || "生成公式失败");
       }
@@ -161,6 +166,22 @@ const FormulaGenerator: React.FC<FormulaGeneratorProps> = ({ token }) => {
     }
   };
 
+  const handleInsertFormula = async () => {
+    if (!formula) return;
+    
+    setIsInserting(true);
+    try {
+      // 动态导入 insertText 函数
+      const { insertText } = await import("../taskpane");
+      await insertText(formula);
+      setError(null);
+    } catch (err: any) {
+      setError("插入公式失败: " + (err.message || "未知错误"));
+    } finally {
+      setIsInserting(false);
+    }
+  };
+
   return (
     <div className={styles.root}>
       <Textarea
@@ -180,18 +201,27 @@ const FormulaGenerator: React.FC<FormulaGeneratorProps> = ({ token }) => {
       </div>
       <div className={styles.errorText}>{error || ""}</div>
       
-        <div className={styles.previewTitle}>公式预览</div>
-        <Textarea
-          className={styles.previewTextarea}
-          readOnly
-          value={formula}
-          placeholder="生成的公式将展示在这"
-        />
-        <div className={styles.previewBtnRow}>
-          <Button className={styles.previewBtn} onClick={handleCopy} disabled={!formula}>复制公式</Button>
-          <Button className={styles.previewBtn} disabled={!formula}>插入公式</Button>
+      {formula && (
+        <div className={styles.previewCard}>
+          <div className={styles.previewTitle}>公式预览</div>
+          <Textarea
+            className={styles.previewTextarea}
+            readOnly
+            value={formula}
+            placeholder="生成的公式将展示在这"
+          />
+          <div className={styles.previewBtnRow}>
+            <Button className={styles.previewBtn} onClick={handleCopy} disabled={!formula}>复制公式</Button>
+            <Button 
+              className={styles.previewBtn} 
+              onClick={handleInsertFormula} 
+              disabled={!formula || isInserting}
+            >
+              {isInserting ? <Spinner size="tiny" /> : "插入公式"}
+            </Button>
+          </div>
         </div>
-      
+      )}
     </div>
   );
 };

@@ -6,7 +6,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const webpack = require("webpack");
 const Dotenv = require('dotenv-webpack');
 
-const urlDev = "https://localhost:3000/";
+const urlDev = "https://localhost:3000/";  // Office插件需要HTTPS
 const urlProd = "https://www.contoso.com/"; // CHANGE THIS TO YOUR PRODUCTION DEPLOYMENT LOCATION
 
 async function getHttpsOptions() {
@@ -16,6 +16,10 @@ async function getHttpsOptions() {
 
 module.exports = async (env, options) => {
   const dev = options.mode === "development";
+  
+  // 支持HTTP模式的环境变量
+  const useHttp = process.env.USE_HTTP === 'true';
+  
   const config = {
     devtool: "source-map",
     entry: {
@@ -101,8 +105,10 @@ module.exports = async (env, options) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
       },
-      server: {
-        type: "https",
+      server: useHttp ? {
+        type: "http",  // HTTP模式用于浏览器测试
+      } : {
+        type: "https", // HTTPS模式用于Office插件
         options: env.WEBPACK_BUILD || options.https !== undefined ? options.https : await getHttpsOptions(),
       },
       port: process.env.npm_package_config_dev_server_port || 3000,

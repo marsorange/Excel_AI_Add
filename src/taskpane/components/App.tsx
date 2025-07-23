@@ -4,6 +4,7 @@ import Header from "./Header";
 import { makeStyles } from "@fluentui/react-components";
 import FormulaGenerator from "./FormulaGenerator";
 import FormulaExplainer from "./FormulaExplainer";
+import AgentChat from "./AgentChat";
 import Auth from "./Auth";
 
 const useStyles = makeStyles({
@@ -49,7 +50,7 @@ const useStyles = makeStyles({
   },
 });
 
-type TabValue = "generator" | "explainer";
+type TabValue = "generator" | "explainer" | "agent";
 
 const App: React.FC = () => {
   const styles = useStyles();
@@ -104,9 +105,16 @@ const App: React.FC = () => {
                 >
                   解释公式
                 </button>
+                <button
+                  className={selectedTab === "agent" ? `${styles.tab} ${styles.tabActive}` : styles.tab}
+                  onClick={() => setSelectedTab("agent")}
+                >
+                  AI 助手
+                </button>
               </div>
               {selectedTab === "generator" && <FormulaGenerator token={token} />}
               {selectedTab === "explainer" && <FormulaExplainer token={token} />}
+              {selectedTab === "agent" && <AgentChat token={token} />}
             </>
           )}
         </div>
