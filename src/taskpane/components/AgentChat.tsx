@@ -320,18 +320,45 @@ const AgentChat: React.FC<AgentChatProps> = ({ token }) => {
     setMessages(prev => [...prev, newMessage]);
   };
 
+  // 将二维数组转为 Markdown 表格
+  function arrayToMarkdownTable(data: any[][]): string {
+    if (!data || data.length === 0) return '';
+    const header = data[0];
+    const rows = data.slice(1);
+    const headerLine = '| ' + header.map(String).join(' | ') + ' |';
+    const separator = '| ' + header.map(() => '---').join(' | ') + ' |';
+    const rowLines = rows.map(row => '| ' + row.map(cell => (cell === undefined ? '' : String(cell))).join(' | ') + ' |');
+    return [headerLine, separator, ...rowLines].join('\n');
+  }
+
   const sendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
     const userMessage = inputValue.trim();
     setInputValue("");
     setError(null);
-    
     addMessage('user', userMessage);
-    
     setIsLoading(true);
-    
+
     try {
+      // 1. 读取当前活动工作表全部内容
+      let markdownTable = '';
+      if (typeof Excel !== 'undefined') {
+        await Excel.run(async (context) => {
+          const sheet = context.workbook.worksheets.getActiveWorksheet();
+          const usedRange = sheet.getUsedRange();
+          usedRange.load('values');
+          await context.sync();
+          const values = usedRange.values;
+          markdownTable = arrayToMarkdownTable(values);
+        });
+      }
+      // 2. 拼接 Markdown 表格和用户消息
+      let prompt = userMessage;
+      if (markdownTable && markdownTable.trim().length > 0) {
+        prompt = `当前表格内容如下（Markdown 格式）：\n${markdownTable}\n\n用户问题：${userMessage}`;
+      }
+      // 3. 发送拼接后的 prompt
       const response = await fetch(API_ENDPOINTS.AGENT_CHAT, {
         method: 'POST',
         headers: {
@@ -339,26 +366,22 @@ const AgentChat: React.FC<AgentChatProps> = ({ token }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: userMessage,
+          message: prompt,
           conversation_id: `conv_${Date.now()}`,
         }),
       });
-
       if (!response.ok) {
         if (response.status === 401) {
           throw new Error('认证失败，请重新登录');
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
       const result = await response.json();
-      
       if (result.success) {
         addMessage('agent', result.response, result.excel_operations || []);
       } else {
         addMessage('agent', result.response || '抱歉，处理您的请求时出现了问题。', [], result.error);
       }
-      
     } catch (err) {
       console.error('发送消息失败:', err);
       setError(`发送消息失败: ${err instanceof Error ? err.message : '未知错误'}`);
