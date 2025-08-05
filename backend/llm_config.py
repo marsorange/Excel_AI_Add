@@ -15,12 +15,18 @@ class LLMConfig:
     """统一的LLM配置类"""
     
     def __init__(self):
-        # 优先使用 DeepSeek，如果没有配置则回退到 OpenAI
+        # 优先使用 Qwen，如果没有配置则回退到 DeepSeek，最后是 OpenAI
+        self.qwen_api_key = os.getenv("DASHSCOPE_API_KEY")
         self.deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
         
         # 确定使用的LLM提供商
-        if self.deepseek_api_key and self.deepseek_api_key != "你的API_KEY":
+        if self.qwen_api_key and self.qwen_api_key != "你的API_KEY":
+            self.provider = "qwen"
+            self.api_key = self.qwen_api_key
+            self.api_url = os.getenv("DASHSCOPE_API_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions")
+            self.model_name = os.getenv("QWEN_MODEL", "qwen-turbo-latest")
+        elif self.deepseek_api_key and self.deepseek_api_key != "你的API_KEY":
             self.provider = "deepseek"
             self.api_key = self.deepseek_api_key
             self.api_url = os.getenv("DEEPSEEK_API_URL", "https://api.deepseek.com/v1/chat/completions")
@@ -31,7 +37,7 @@ class LLMConfig:
             self.api_url = "https://api.openai.com/v1/chat/completions"
             self.model_name = "gpt-3.5-turbo"
         else:
-            raise ValueError("未找到有效的LLM API配置，请配置 DEEPSEEK_API_KEY 或 OPENAI_API_KEY")
+            raise ValueError("未找到有效的LLM API配置，请配置 DASHSCOPE_API_KEY、DEEPSEEK_API_KEY 或 OPENAI_API_KEY")
     
     def check_api_key(self) -> bool:
         """检查API密钥是否有效"""

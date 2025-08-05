@@ -18,11 +18,6 @@ import {
   Copy24Regular,
   CheckmarkCircle24Regular,
   ErrorCircle24Regular,
-  PersonSearch24Regular,
-  DocumentBulletList24Regular,
-  TableCalculatorRegular,
-  DataUsage24Regular,
-  ChartMultiple24Regular,
 } from "@fluentui/react-icons";
 import { API_ENDPOINTS } from "../../config/api";
 
@@ -200,47 +195,6 @@ const useStyles = makeStyles({
     flexShrink: 0,
     marginTop: tokens.spacingVerticalXS,
   },
-  quickActionsContainer: {
-    display: "flex",
-    flexDirection: "column",
-    gap: tokens.spacingVerticalM,
-    padding: tokens.spacingVerticalM,
-    borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
-    backgroundColor: tokens.colorNeutralBackground1,
-  },
-  quickActionsTitle: {
-    fontSize: tokens.fontSizeBase200,
-    fontWeight: tokens.fontWeightSemibold,
-    color: tokens.colorNeutralForeground3,
-    marginBottom: tokens.spacingVerticalS,
-  },
-  quickActionsGrid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: tokens.spacingVerticalS,
-  },
-  quickActionButton: {
-    padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalM}`,
-    border: `1px solid ${tokens.colorNeutralStroke2}`,
-    borderRadius: tokens.borderRadiusSmall,
-    backgroundColor: tokens.colorNeutralBackground1,
-    color: tokens.colorNeutralForeground1,
-    fontSize: tokens.fontSizeBase100,
-    fontWeight: tokens.fontWeightRegular,
-    cursor: "pointer",
-    transition: "all 0.2s ease",
-    display: "flex",
-    alignItems: "center",
-    gap: tokens.spacingHorizontalS,
-    minHeight: "40px",
-    ":hover": {
-      backgroundColor: tokens.colorNeutralBackground2,
-      borderColor: tokens.colorPaletteGreenBorder1,
-    },
-    ":active": {
-      backgroundColor: tokens.colorNeutralBackground3,
-    },
-  } as any,
 });
 
 interface Message {
@@ -263,33 +217,6 @@ interface AgentChatProps {
   token: string;
 }
 
-// 财务快捷功能定义
-const financeQuickActions = [
-  {
-    id: "voucher_entry",
-    label: "凭证录入",
-    icon: <DocumentBulletList24Regular />,
-    prompt: "请帮我创建一个标准的会计凭证录入模板，包括借贷科目、金额、摘要等字段，并设置数据验证。"
-  },
-  {
-    id: "reconciliation",
-    label: "表格对账",
-    icon: <TableCalculatorRegular />,
-    prompt: "请帮我对比两个表格的数据，找出差异并生成对账报告。包括差异明细、匹配情况统计等。"
-  },
-  {
-    id: "data_cleaning",
-    label: "数据清洗",
-    icon: <DataUsage24Regular />,
-    prompt: "请帮我清洗财务数据，包括去除重复项、修正数据格式、处理异常值、统一科目编码等。"
-  },
-  {
-    id: "financial_reports",
-    label: "三大报表生成",
-    icon: <ChartMultiple24Regular />,
-    prompt: "请帮我根据财务数据生成资产负债表、利润表和现金流量表，包括自动计算和格式化。"
-  }
-];
 
 const AgentChat: React.FC<AgentChatProps> = ({ token }) => {
   const styles = useStyles();
@@ -378,14 +305,14 @@ const AgentChat: React.FC<AgentChatProps> = ({ token }) => {
       }
       const result = await response.json();
       if (result.success) {
-        addMessage('agent', result.response, result.excel_operations || []);
+        addMessage('agent', result.response, []);
       } else {
         addMessage('agent', result.response || '抱歉，处理您的请求时出现了问题。', [], result.error);
       }
     } catch (err) {
       console.error('发送消息失败:', err);
       setError(`发送消息失败: ${err instanceof Error ? err.message : '未知错误'}`);
-      addMessage('agent', '抱歉，无法连接到服务器，请检查网络连接或稍后重试。', [], err instanceof Error ? err.message : '网络错误');
+      addMessage('agent', '抱歉，无法连接到服务器，请检查网络连接或稍后重试。');
     } finally {
       setIsLoading(false);
     }
@@ -455,12 +382,6 @@ const AgentChat: React.FC<AgentChatProps> = ({ token }) => {
     }
   };
 
-  const handleQuickAction = (actionPrompt: string) => {
-    if (isLoading) return;
-    setInputValue(actionPrompt);
-    // 可以选择立即发送或让用户查看后再发送
-    // sendMessage() 
-  };
 
   const handleKeyPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -592,24 +513,6 @@ const AgentChat: React.FC<AgentChatProps> = ({ token }) => {
           )}
           
           <div ref={messagesEndRef} />
-        </div>
-
-        {/* 财务快捷功能区域 */}
-        <div className={styles.quickActionsContainer}>
-          <Text className={styles.quickActionsTitle}>财务快捷功能</Text>
-          <div className={styles.quickActionsGrid}>
-            {financeQuickActions.map((action) => (
-              <button
-                key={action.id}
-                className={styles.quickActionButton}
-                onClick={() => handleQuickAction(action.prompt)}
-                disabled={isLoading}
-              >
-                {action.icon}
-                <span>{action.label}</span>
-              </button>
-            ))}
-          </div>
         </div>
 
         <div className={styles.inputArea}>

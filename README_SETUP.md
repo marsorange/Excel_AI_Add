@@ -1,170 +1,151 @@
-# Excel AI 助手 - 设置指南
+# Excel AI 助手 - 安装配置指南
 
 ## 项目概述
-Excel AI 助手是一个基于人工智能的Excel插件，提供智能公式生成、公式解释和AI对话功能。
 
-## 技术栈
-- **前端**: React + TypeScript + Fluent UI
-- **后端**: FastAPI + SQLAlchemy + Python
-- **AI模型**: DeepSeek API
-- **数据库**: SQLite (默认) / PostgreSQL (可选)
+Excel AI 助手是一个基于 Office Add-in 的智能 Excel 助手，提供以下功能：
+
+- **AI模型**: Qwen API
+- **Excel操作**: 读取数据、生成公式、创建图表
+- **智能对话**: 自然语言交互
+- **实时响应**: 即时反馈和操作
 
 ## 环境要求
-- Node.js >= 16.0
-- Python >= 3.8
-- Excel 2021 或 Microsoft 365
 
-## 安装与配置
+- Python 3.8+
+- Node.js 16+
+- Office 365 或 Excel 2016+
+- 有效的 Qwen API Key
+
+## 安装步骤
 
 ### 1. 克隆项目
+
 ```bash
-git clone [项目地址]
+git clone <repository-url>
 cd Excel_AI
 ```
 
-### 2. 后端配置
+### 2. 安装依赖
 
-#### 安装Python依赖
+#### 后端依赖
 ```bash
 cd backend
 pip install -r requirements.txt
 ```
 
-#### 配置环境变量
+#### 前端依赖
 ```bash
-# 复制环境变量模板
-cp .env.example .env
-
-# 编辑 .env 文件，设置以下配置：
-# DEEPSEEK_API_KEY=你的DeepSeek API密钥
-# SECRET_KEY=你的JWT密钥
-```
-
-#### 获取 DeepSeek API Key
-1. 访问 [DeepSeek 开放平台](https://platform.deepseek.com/)
-2. 注册并创建API密钥
-3. 将密钥填入 `.env` 文件中的 `DEEPSEEK_API_KEY`
-
-#### 初始化数据库
-```bash
-# 创建数据库表
-python -c "from database import engine; from models import Base; Base.metadata.create_all(bind=engine)"
-```
-
-### 3. 前端配置
-
-#### 安装Node.js依赖
-```bash
-# 回到项目根目录
-cd ..
 npm install
 ```
 
-#### 开发证书（Excel插件需要）
+### 3. 配置环境变量
+
+创建 `.env` 文件：
+
 ```bash
-# Excel插件需要HTTPS证书
-npx office-addin-dev-certs install
+# 数据库配置
+DATABASE_URL=sqlite:///./excel_ai.db
+
+# Qwen API配置
+DASHSCOPE_API_KEY=你的Qwen API密钥
+
+
+
+# 服务器配置
+HOST=0.0.0.0
+PORT=8000
+DEBUG=true
 ```
 
-## 运行项目 🚀
+#### 获取 Qwen API Key
 
-### 🎯 两种运行模式
+1. 访问 [阿里云 DashScope](https://dashscope.aliyun.com/)
+2. 注册账号并获取 API Key
+3. 将密钥填入 `.env` 文件中的 `DASHSCOPE_API_KEY`
 
-#### 模式1：Excel插件开发 (HTTPS)
+### 4. 初始化数据库
+
 ```bash
-# 后端
-cd backend && uvicorn main:app --reload
-
-# 前端 (HTTPS模式)
-npm run dev-server
-```
-- 访问：https://localhost:3000
-- 用于Excel插件开发和调试
-- 需要安装开发证书
-
-#### 模式2：浏览器测试 (HTTP) ⭐推荐用于测试
-```bash
-# 后端
-cd backend && uvicorn main:app --reload
-
-# 前端 (HTTP模式)
-npm run browser-test
-```
-- 访问：http://localhost:3000
-- 便于浏览器直接测试
-- 无需证书，避免HTTPS证书问题
-
-### 方法一：使用自动化脚本
-```bash
-python check_and_start.py
+cd backend
+alembic upgrade head
 ```
 
-## 测试和验证
+### 5. 启动服务
 
-### 🌐 浏览器测试
-1. 启动浏览器测试模式：`npm run browser-test`
-2. 打开测试页面：`browser-test.html`
-3. 或直接访问：http://localhost:3000
-
-### 📊 Excel插件测试
-1. 启动HTTPS模式：`npm run dev-server`
-2. 打开Excel
-3. 加载插件：`插入` > `Office 加载项` > `上传我的加载项` > 选择 `manifest.xml`
-
-### 🔍 连接测试
+#### 启动后端服务
 ```bash
-# 测试后端API
-curl http://localhost:8000/api/llm-info
-
-# 验证清单文件
-npm run validate
+cd backend
+python main.py
 ```
 
-## API端点
-- **浏览器测试**: http://localhost:3000 ⭐便于测试
-- **Excel插件**: https://localhost:3000 (需证书)
-- **后端API**: http://localhost:8000
-- **API文档**: http://localhost:8000/docs
+#### 启动前端开发服务器
+```bash
+npm run dev
+```
 
-## 主要功能
-1. **用户认证**: 注册/登录系统
-2. **公式生成**: 自然语言转Excel公式
-3. **公式解释**: 解释复杂Excel公式含义
-4. **AI助手**: 智能对话和Excel操作建议
+## 配置说明
+
+### 环境变量
+
+| 变量名 | 说明 | 必需 |
+|--------|------|------|
+| `QWEN_API_KEY` | Qwen API 密钥 | 是 |
+| `OPENAI_API_KEY` | OpenAI API 密钥（备用） | 否 |
+| `DATABASE_URL` | 数据库连接字符串 | 是 |
+| `HOST` | 服务器主机 | 否 |
+| `PORT` | 服务器端口 | 否 |
+| `DEBUG` | 调试模式 | 否 |
+
+### API 配置
+
+项目支持两种 AI 模型配置：
+
+1. **Qwen API**（推荐）：阿里云通义千问模型
+
+
 
 ## 故障排除
 
 ### 常见问题
-1. **端口冲突**: 确保3000和8000端口未被占用
-2. **证书问题**: Excel插件需要HTTPS证书，浏览器测试使用HTTP
-3. **API连接失败**: 检查后端是否正常启动
-4. **DeepSeek API错误**: 验证API密钥是否正确配置
 
-### 访问模式选择
-- **开发Excel插件**: 使用 `npm run dev-server` (HTTPS)
-- **浏览器功能测试**: 使用 `npm run browser-test` (HTTP) 👍推荐
-- **生产环境**: 全部使用HTTPS
+1. **依赖安装失败**: 确保 Python 和 Node.js 版本符合要求
+2. **数据库连接错误**: 检查 DATABASE_URL 配置
+3. **Qwen API错误**: 验证API密钥是否正确配置
+4. **端口占用**: 修改 PORT 环境变量或关闭占用端口的程序
 
-### 日志查看
-- 前端日志：浏览器开发者工具Console
-- 后端日志：终端输出
-- Excel插件日志：Excel开发者工具
+### 调试模式
 
-### NPM脚本说明
+设置 `DEBUG=true` 启用详细日志输出：
+
 ```bash
-npm run dev-server        # HTTPS模式，用于Excel插件
-npm run browser-test       # HTTP模式，用于浏览器测试
-npm run dev-server-http    # HTTP模式（别名）
-npm run validate          # 验证manifest.xml
-npm run start             # 启动Excel调试
+export DEBUG=true
+python main.py
 ```
 
-## 部署
-参考 `PROJECT_STATUS.md` 中的部署指南进行生产环境部署。
+## 开发指南
 
----
+### 项目结构
 
-**💡 小贴士**: 
-- 初次测试推荐使用**浏览器HTTP模式**，避免证书配置问题
-- Excel插件开发时使用**HTTPS模式**确保兼容性
-- 使用 `browser-test.html` 快速测试所有功能
+```
+Excel_AI/
+├── backend/          # 后端服务
+│   ├── main.py      # 主程序
+│   ├── models.py    # 数据模型
+│   ├── crud.py      # 数据库操作
+│   └── llm_config.py # LLM配置
+├── src/             # 前端代码
+│   ├── taskpane/    # Office Add-in
+│   └── commands/    # 命令模块
+├── assets/          # 静态资源
+└── docs/           # 文档
+```
+
+### 添加新功能
+
+1. 在 `backend/` 中添加后端逻辑
+2. 在 `src/taskpane/` 中添加前端组件
+3. 更新 API 文档和测试用例
+
+## 许可证
+
+本项目采用 MIT 许可证。

@@ -54,7 +54,7 @@ type TabValue = "generator" | "explainer" | "agent";
 
 const App: React.FC = () => {
   const styles = useStyles();
-  const [selectedTab, setSelectedTab] = useState<TabValue>("generator");
+  const [selectedTab, setSelectedTab] = useState<TabValue>("agent");
   const [token, setToken] = useState<string | null>(localStorage.getItem("authToken"));
   const [email, setEmail] = useState<string | null>(null);
   const [showAuth, setShowAuth] = useState(false);
@@ -94,6 +94,11 @@ const App: React.FC = () => {
             <>
               <div className={styles.tabBar}>
                 <button
+                  className={selectedTab === "agent" ? `${styles.tab} ${styles.tabActive}` : styles.tab}
+                  onClick={() => setSelectedTab("agent")}
+                >
+                  AI 助手
+                </button><button
                   className={selectedTab === "generator" ? `${styles.tab} ${styles.tabActive}` : styles.tab}
                   onClick={() => setSelectedTab("generator")}
                 >
@@ -105,16 +110,12 @@ const App: React.FC = () => {
                 >
                   解释公式
                 </button>
-                <button
-                  className={selectedTab === "agent" ? `${styles.tab} ${styles.tabActive}` : styles.tab}
-                  onClick={() => setSelectedTab("agent")}
-                >
-                  AI 助手
-                </button>
+                
               </div>
+              {selectedTab === "agent" && <AgentChat token={token} />}
               {selectedTab === "generator" && <FormulaGenerator token={token} />}
               {selectedTab === "explainer" && <FormulaExplainer token={token} />}
-              {selectedTab === "agent" && <AgentChat token={token} />}
+
             </>
           )}
         </div>
