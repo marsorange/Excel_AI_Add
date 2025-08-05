@@ -258,6 +258,60 @@ const AgentChat: React.FC<AgentChatProps> = ({ token }) => {
     return [headerLine, separator, ...rowLines].join('\n');
   }
 
+  // 从AI回复中提取Excel代码
+  function extractExcelCodeFromResponse(response: string): { cleanResponse: string; excelOperations: ExcelOperation[] } {
+    const excelOperations: ExcelOperation[] = [];
+    
+    // 匹配JavaScript代码块（包含Excel.run）
+    const codeBlockRegex = /```(?:javascript|js)?\s*\n([\s\S]*?)\n```/g;
+    const excelRunRegex = /Excel\.run\s*\(\s*async\s*\(\s*context\s*\)\s*=>\s*\{([\s\S]*?)\}\s*\);?/g;
+    
+    let cleanResponse = response;
+    let match;
+    
+    // 首先处理代码块中的Excel代码
+    while ((match = codeBlockRegex.exec(response)) !== null) {
+      const codeBlock = match[1];
+      const excelRunMatch = excelRunRegex.exec(codeBlock);
+      
+      if (excelRunMatch) {
+        const excelCode = `Excel.run(async (context) => {${excelRunMatch[1]}});`;
+        const description = codeBlock.replace(/[\n\r]+/g, ' ').trim().substring(0, 100) + '...';
+        
+        excelOperations.push({
+          operation_type: 'excel_operation',
+          description: description,
+          js_code: excelCode
+        });
+        
+        // 从响应中移除代码块
+        cleanResponse = cleanResponse.replace(match[0], '');
+      }
+    }
+    
+    // 然后处理直接的Excel.run代码（不在代码块中的）
+    if (excelOperations.length === 0) {
+      while ((match = excelRunRegex.exec(response)) !== null) {
+        const excelCode = `Excel.run(async (context) => {${match[1]}});`;
+        const description = `Excel操作 - 自动提取`;
+        
+        excelOperations.push({
+          operation_type: 'excel_operation',
+          description: description,
+          js_code: excelCode
+        });
+        
+        // 从响应中移除代码
+        cleanResponse = cleanResponse.replace(match[0], '');
+      }
+    }
+    
+    return {
+      cleanResponse: cleanResponse.trim(),
+      excelOperations
+    };
+  }
+
   const sendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
@@ -305,7 +359,9 @@ const AgentChat: React.FC<AgentChatProps> = ({ token }) => {
       }
       const result = await response.json();
       if (result.success) {
-        addMessage('agent', result.response, []);
+        // 从AI回复中提取Excel代码
+        const { cleanResponse, excelOperations } = extractExcelCodeFromResponse(result.response);
+        addMessage('agent', cleanResponse, excelOperations);
       } else {
         addMessage('agent', result.response || '抱歉，处理您的请求时出现了问题。', [], result.error);
       }
